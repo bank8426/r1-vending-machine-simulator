@@ -2,8 +2,17 @@ import NextAuth from "next-auth";
 import GitHub from "next-auth/providers/github";
 import Google from "next-auth/providers/google";
 import Credentials from "next-auth/providers/credentials";
+import { DrizzleAdapter } from "@auth/drizzle-adapter";
+import { db } from "./database/drizzle";
+import { accounts, users, verificationTokens } from "./database/schema";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  adapter: DrizzleAdapter(db, {
+    usersTable: users,
+    accountsTable: accounts,
+    verificationTokensTable: verificationTokens,
+  }),
+  session: { strategy: "jwt" },
   providers: [
     GitHub,
     // Google,
@@ -28,9 +37,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           label: "Password",
         },
       },
-      async authorize({ request }) {
-        console.log(request);
-
+      async authorize(credentials) {
+        console.log("credentials authorize");
+        console.log(credentials);
         // TODO remove line below
         return null;
       },
